@@ -2,7 +2,7 @@ import { createContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
 // Pre-defined Components
-import { EMPLOYEE_LIST, EMPLOYEE_LIST_HEADERS } from '../configs/constants';
+import { EMPLOYEE_LIST, EMPLOYEE_LIST_HEADERS, REQUEST_STATUS } from '../configs/constants';
 import { getEmployees } from '../api/getEmployees';
 
 export const EmployeeDetailsContext = createContext();
@@ -11,27 +11,20 @@ export default function useEmployeeDetails() {
     // Context States
     const [employeeList, setEmployeeList] = useState([]);
 
-    useEffect(() => {
-        (async () => {
-            const employeeResp = await getEmployees();
-            if (employeeResp?.data) {
-                setEmployeeList(employeeResp.data);
-            }
-            // const employeeResult = await fetch('/api/employees', {
-            //     method: 'get',
-            //     headers: { storage: window.localStorage.getItem(EMPLOYEE_LIST) },
-            // });
-            // const employeeResp = await employeeResult.json();
-            // if (employeeResp?.data) {
-            //     setEmployeeList(employeeResp.data);
-            // }
-        })();
-    }, []);
-
     const updateEmployeeList = (updatedEmpList) => {
         window.localStorage.setItem(EMPLOYEE_LIST, JSON.stringify(updatedEmpList));
         setEmployeeList(updatedEmpList);
     };
+
+    useEffect(() => {
+        (async () => {
+            const employeeResp = await getEmployees();
+            console.log(employeeResp);
+            if (employeeResp?.status === REQUEST_STATUS.OK && employeeResp?.data) {
+                updateEmployeeList(employeeResp.data);
+            }
+        })();
+    }, []);
 
     return {
         EMPLOYEE_LIST,

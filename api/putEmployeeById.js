@@ -1,26 +1,26 @@
 import { EMPLOYEE_LIST } from '../configs/constants';
 
 export const putEmployeeById = async ({ emplid, login, name, salary }) => {
+    console.log(emplid, login, name, salary);
     try {
-        const employeeResult = await fetch(`/api/employee`, {
+        const reqBody = {
+            login,
+            name,
+            salary,
+        };
+        const employeeResult = await fetch(`/api/employees/${emplid}`, {
             method: 'PUT',
+            body: JSON.stringify(reqBody),
             headers: {
+                'Content-Type': 'application/json',
                 data: window.localStorage.getItem(EMPLOYEE_LIST),
-            },
-            body: {
-                emplid,
-                login,
-                name,
-                salary,
             },
         });
         const employeeResp = await employeeResult.json();
-        console.log(employeeResp);
-        // if (employeeResp.status === 204) {
-        //     return employeeResp;
-        // }
-        return { data: [] };
+        // console.log('response', employeeResp);
+        return employeeResp;
     } catch (error) {
-        return { data: [] };
+        // console.log('error', error);
+        return {};
     }
 };

@@ -7,25 +7,8 @@ export const getEmployees = async () => {
             headers: { data: window.localStorage.getItem(EMPLOYEE_LIST) },
         });
         const employeeResp = await employeeResult.json();
-        console.log(employeeResp);
-        if (employeeResp.status === 200) {
-            return employeeResp;
-        }
-
-        return { data: [] };
-
-        // let orderedEmpListById = [];
-        // if (window.localStorage.getItem(EMPLOYEE_LIST)) {
-        //     orderedEmpListById = JSON.parse(window.localStorage.getItem(EMPLOYEE_LIST)).sort(
-        //         (a, b) => a.id - b.id,
-        //     );
-        // }
-
-        // return {
-        //     data: orderedEmpListById,
-        //     status: 200,
-        // };
+        return employeeResp;
     } catch (error) {
-        return { data: [] };
+        return error;
     }
 };
