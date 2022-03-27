@@ -1,8 +1,13 @@
 import { REQUEST_STATUS } from '../../../configs/constants';
 
 const employeesApiHandler = (req, res) => {
-    const { headers } = req;
-    let orderedEmpListById = [];
+    // console.log('req', req.query);
+    const { headers, query } = req;
+    const { current, pageSize, sortField, sortOrder } = query;
+    console.log(current, pageSize, sortField, sortOrder);
+
+    const rowEndsWith = current * pageSize;
+    const rowStartFrom = rowEndsWith - pageSize;
 
     // Validate local storage item existence
     if (!headers?.data)
@@ -12,8 +17,26 @@ const employeesApiHandler = (req, res) => {
         });
 
     // Employees data taken from local storage
-    orderedEmpListById = JSON.parse(req.headers.data)?.sort((a, b) => a.id - b.id) || [];
-    return res.status(200).json({ status: REQUEST_STATUS.OK, data: orderedEmpListById });
+    const employeeList = JSON.parse(headers.data) || [];
+    const orderedEmployeeList =
+        sortField && sortOrder
+            ? sortOrder === 'ascend'
+                ? sortField === 'salary'
+                    ? employeeList.sort(
+                          (a, b) => parseFloat(a[sortField]) - parseFloat(b[sortField]),
+                      )
+                    : employeeList.sort((a, b) => a[sortField].localeCompare(b[sortField]))
+                : sortField === 'salary'
+                ? employeeList.sort((a, b) => parseFloat(b[sortField]) - parseFloat(a[sortField]))
+                : employeeList.sort((a, b) => b[sortField].localeCompare(a[sortField]))
+            : employeeList;
+
+    return res.status(200).json({
+        status: REQUEST_STATUS.OK,
+        data: orderedEmployeeList.slice(rowStartFrom, rowEndsWith),
+        pagination: { current, pageSize, total: employeeList.length },
+        sorter: { key: sortField, field: sortField, order: sortOrder },
+    });
 };
 
 export default employeesApiHandler;

@@ -18,24 +18,27 @@ const updateEmployeeDetailsById = async (req, res) => {
 
     // Validate Fields
     let fieldErrors = {};
-    if (emplid?.length === 0)
-        fieldErrors = { ...fieldErrors, emplidError: 'Employee Id is required.' };
-    if (login?.length === 0) fieldErrors = { ...fieldErrors, loginError: 'Login is required.' };
-    if (name?.length === 0) fieldErrors = { ...fieldErrors, nameError: 'Name is required.' };
-    if (salary?.length === 0 || parseFloat(salary) <= 0)
-        fieldErrors = { ...fieldErrors, salaryError: 'Salary must not be blank or equal to zero.' };
-    if (Object.keys(fieldErrors).length > 0) {
+    emplid?.length === 0 &&
+        (fieldErrors = { ...fieldErrors, emplidError: 'Employee Id is required.' });
+    login?.length === 0 && (fieldErrors = { ...fieldErrors, loginError: 'Login is required.' });
+    name?.length === 0 && (fieldErrors = { ...fieldErrors, nameError: 'Name is required.' });
+    (salary?.length === 0 || parseFloat(salary) <= 0) &&
+        (fieldErrors = {
+            ...fieldErrors,
+            salaryError: 'Salary must not be blank or equal to zero.',
+        });
+    if (Object.keys(fieldErrors).length > 0)
         return res.status(400).json({
             status: REQUEST_STATUS.FAILED,
             ...fieldErrors,
         });
-    }
 
     // Employees data taken from local storage
-    let orderedEmpListById = JSON.parse(req.headers.data)?.sort((a, b) => a.id - b.id) || [];
+    // let orderedEmpListById = JSON.parse(headers.data)?.sort((a, b) => a.id - b.id) || [];
+    let employeeList = JSON.parse(headers.data)?.sort((a, b) => a.id - b.id) || [];
 
     // Search Employee Id (if exist)
-    const searchedEmpIdData = orderedEmpListById.filter((emp) => emp.emplid === emplid);
+    const searchedEmpIdData = employeeList.filter((emp) => emp.emplid === emplid);
     if (searchedEmpIdData?.length === 0) {
         return res.status(400).json({
             status: REQUEST_STATUS.FAILED,
@@ -44,7 +47,7 @@ const updateEmployeeDetailsById = async (req, res) => {
     }
 
     // Search Login (if exist)
-    const searchedEmpLoginData = orderedEmpListById.filter(
+    const searchedEmpLoginData = employeeList.filter(
         (emp) => emp.login === login && emp.emplid !== emplid,
     );
     if (searchedEmpLoginData?.length > 0) {
@@ -55,17 +58,17 @@ const updateEmployeeDetailsById = async (req, res) => {
     }
 
     // Update existing employee details
-    const empIndex = await orderedEmpListById.findIndex((e) => e.emplid === emplid);
+    const empIndex = await employeeList.findIndex((e) => e.emplid === emplid);
     if (empIndex >= 0) {
-        orderedEmpListById[empIndex].emplid = emplid;
-        orderedEmpListById[empIndex].login = login;
-        orderedEmpListById[empIndex].name = name;
-        orderedEmpListById[empIndex].salary = salary;
+        employeeList[empIndex].emplid = emplid;
+        employeeList[empIndex].login = login;
+        employeeList[empIndex].name = name;
+        employeeList[empIndex].salary = salary;
     }
 
     return res.status(200).json({
         status: REQUEST_STATUS.OK,
-        data: orderedEmpListById,
+        data: employeeList,
         message: `Employee Id: ${emplid} has been successfully updated.`,
     });
 };

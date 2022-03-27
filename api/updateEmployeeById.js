@@ -1,6 +1,6 @@
 import { EMPLOYEE_LIST } from '../configs/constants';
 
-export const putEmployeeById = async ({ emplid, login, name, salary }) => {
+export const updateEmployeeById = async ({ emplid, login, name, salary }) => {
     console.log(emplid, login, name, salary);
     try {
         const reqBody = {
@@ -17,10 +17,10 @@ export const putEmployeeById = async ({ emplid, login, name, salary }) => {
             },
         });
         const employeeResp = await employeeResult.json();
-        // console.log('response', employeeResp);
+        // console.log('updateEmployeeById response', employeeResp);
         return employeeResp;
     } catch (error) {
-        // console.log('error', error);
+        // console.log('updateEmployeeById error', error);
         return {};
     }
 };

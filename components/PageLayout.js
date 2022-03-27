@@ -5,14 +5,8 @@ import { useWindowSize, useWindowWidth, useWindowHeight } from '@react-hook/wind
 import { Avatar, AutoComplete, Image, Input, Layout, Menu, Switch } from 'antd';
 import {
     HomeOutlined,
-    AppstoreOutlined,
-    BarChartOutlined,
-    CloudOutlined,
-    ShopOutlined,
-    TeamOutlined,
     UserOutlined,
     UploadOutlined,
-    VideoCameraOutlined,
     FileFilled,
     LogoutOutlined,
 } from '@ant-design/icons';

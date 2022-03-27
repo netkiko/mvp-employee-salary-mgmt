@@ -10,19 +10,37 @@ export const EmployeeDetailsContext = createContext();
 export default function useEmployeeDetails() {
     // Context States
     const [employeeList, setEmployeeList] = useState([]);
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 5,
+        total: 0,
+    });
+    const [sorter, setSorter] = useState({
+        key: 'emplid',
+        field: 'emplid',
+        order: 'ascend',
+    });
+    const [loading, setLoading] = useState(true);
 
-    const updateEmployeeList = (updatedEmpList) => {
-        window.localStorage.setItem(EMPLOYEE_LIST, JSON.stringify(updatedEmpList));
-        setEmployeeList(updatedEmpList);
+    const updateEmployeeList = ({ data, pagination, sorter }) => {
+        // window.localStorage.setItem(EMPLOYEE_LIST, JSON.stringify(updatedEmpList));
+        setEmployeeList(data);
+        setPagination({
+            current: parseInt(pagination.current),
+            pageSize: parseInt(pagination.pageSize),
+            total: pagination.total,
+        });
+        setSorter(sorter);
     };
 
     useEffect(() => {
         (async () => {
-            const employeeResp = await getEmployees();
-            console.log(employeeResp);
+            const employeeResp = await getEmployees({ pagination, sorter });
+            console.log('employeeResp', employeeResp);
             if (employeeResp?.status === REQUEST_STATUS.OK && employeeResp?.data) {
-                updateEmployeeList(employeeResp.data);
+                updateEmployeeList(employeeResp);
             }
+            setLoading(false);
         })();
     }, []);
 
@@ -32,6 +50,10 @@ export default function useEmployeeDetails() {
         employeeList,
         setEmployeeList,
         updateEmployeeList,
+        pagination,
+        setPagination,
+        loading,
+        setLoading,
     };
 }
 

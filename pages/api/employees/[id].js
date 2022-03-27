@@ -1,4 +1,5 @@
-import updateEmployeeDetailsById from '../../../helpers/api/updateEmployeeDetailsById';
+import handleUpdateEmployeeDetailsById from '../../../helpers/api/handleUpdateEmployeeDetailsById';
+import handleDeleteEmployeeDetailsById from '../../../helpers/api/handleDeleteEmployeeDetailsById';
 
 export default function userHandler(req, res) {
     const { method } = req;
@@ -14,10 +15,10 @@ export default function userHandler(req, res) {
         //     break;
         case 'PUT':
             // Update or create data in your database
-            return updateEmployeeDetailsById(req, res);
+            return handleUpdateEmployeeDetailsById(req, res);
         case 'DELETE':
             // Update or create data in your database
-            return res.status(200).json({ emplid, name: name || `User ${emplid}` });
+            return handleDeleteEmployeeDetailsById(req, res);
         default:
             res.setHeader('Allow', ['GET', 'PUT']);
             res.status(405).end(`Method ${method} Not Allowed`);

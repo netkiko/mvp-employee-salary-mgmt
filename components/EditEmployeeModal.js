@@ -1,24 +1,21 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Alert, Modal, Button, Input, Space, Typography } from 'antd';
-const { Title, Text } = Typography;
 
+// Pre-defined Components
 import { REQUEST_STATUS } from '../configs/constants';
 import { EmployeeDetailsContext } from '../contexts/EmployeeDetails';
-import { putEmployeeById } from '../api/putEmployeeById';
+import { updateEmployeeById } from '../api/updateEmployeeById';
+
+const { Title, Text } = Typography;
+const { confirm } = Modal;
 
 const EditEmployeeModal = ({ selectedEmpData, showEditModal, setShowEditModal }) => {
-    console.log('selectedEmpData', selectedEmpData);
     const EmployeeDetails = useContext(EmployeeDetailsContext);
-    const {
-        EMPLOYEE_LIST,
-        EMPLOYEE_LIST_HEADERS: columnHeaders,
-        employeeList,
-        updateEmployeeList,
-    } = EmployeeDetails;
+    const { updateEmployeeList } = EmployeeDetails;
 
     // Local states
     const [loading, setLoading] = useState(false);
-    const [emplid, setEmplid] = useState(selectedEmpData?.emplid);
+    // const [emplid, setEmplid] = useState(selectedEmpData?.emplid);
     const [login, setLogin] = useState(selectedEmpData?.login);
     const [name, setName] = useState(selectedEmpData?.name);
     const [salary, setSalary] = useState(selectedEmpData?.salary);
@@ -30,7 +27,14 @@ const EditEmployeeModal = ({ selectedEmpData, showEditModal, setShowEditModal })
 
     const handleCancel = () => setShowEditModal(false);
 
+    const displaySuccessModal = (message) => {
+        Modal.success({
+            content: message,
+        });
+    };
+
     const handleUpdateEmpDetails = async () => {
+        setLoading(true);
         let formHasError = false;
         if (login.length === 0) {
             setLoginError('Login is required!');
@@ -46,18 +50,26 @@ const EditEmployeeModal = ({ selectedEmpData, showEditModal, setShowEditModal })
         }
 
         if (!formHasError) {
-            const updateResp = await putEmployeeById({ emplid, login, name, salary });
-            console.log('updateResp', updateResp);
+            const updateResp = await updateEmployeeById({
+                emplid: selectedEmpData?.emplid,
+                login,
+                name,
+                salary,
+            });
+            // console.log('updateResp', updateResp);
             if (updateResp?.status === REQUEST_STATUS.OK) {
                 updateEmployeeList(updateResp.data);
+                updateResp?.message && displaySuccessModal(updateResp?.message);
                 // console.log(updateResp);
+                handleCancel();
             } else if (updateResp?.status === REQUEST_STATUS.FAILED) {
-                if (updateResp?.message) setErrorMessage(updateResp?.message);
-                if (updateResp?.loginError) setLoginError(updateResp?.loginError);
-                if (updateResp?.nameError) setNameError(updateResp?.nameError);
-                if (updateResp?.salaryError) setSalaryError(updateResp?.salaryError);
+                updateResp?.message && setErrorMessage(updateResp?.message);
+                updateResp?.loginError && setLoginError(updateResp?.loginError);
+                updateResp?.nameError && setNameError(updateResp?.nameError);
+                updateResp?.salaryError && setSalaryError(updateResp?.salaryError);
             }
         }
+        setLoading(false);
     };
 
     return (
@@ -91,10 +103,11 @@ const EditEmployeeModal = ({ selectedEmpData, showEditModal, setShowEditModal })
                             style={{ marginTop: 15 }}
                         />
                     )}
-                    <Title level={4}>Employee Id: {emplid}</Title>
+                    <Title level={4}>Employee Id: {selectedEmpData?.emplid}</Title>
                     <div style={{ marginTop: 10 }}>
                         <Text>Name:</Text>
                         <Input
+                            type="text"
                             id="name"
                             name="name"
                             value={name}
@@ -110,6 +123,7 @@ const EditEmployeeModal = ({ selectedEmpData, showEditModal, setShowEditModal })
                     <div style={{ marginTop: 10 }}>
                         <Text>Login:</Text>
                         <Input
+                            type="text"
                             id="login"
                             name="login"
                             value={login}
@@ -125,6 +139,7 @@ const EditEmployeeModal = ({ selectedEmpData, showEditModal, setShowEditModal })
                     <div style={{ marginTop: 10 }}>
                         <Text>Salary:</Text>
                         <Input
+                            type="number"
                             id="salary"
                             name="salary"
                             value={salary}
