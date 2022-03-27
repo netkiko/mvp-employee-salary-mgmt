@@ -1,10 +1,8 @@
 import { REQUEST_STATUS } from '../../../configs/constants';
 
 const employeesApiHandler = (req, res) => {
-    // console.log('req', req.query);
     const { headers, query } = req;
     const { current, pageSize, sortField, sortOrder, minSalary, maxSalary } = query;
-    console.log(current, pageSize, sortField, sortOrder, minSalary, maxSalary);
 
     const rowEndsWith = current * pageSize;
     const rowStartFrom = rowEndsWith - pageSize;
@@ -31,7 +29,7 @@ const employeesApiHandler = (req, res) => {
               )
             : employeeList;
 
-    // Order Employees by either Id, Loginm Name or Salary
+    // Order Employees by either Id, Login, Name or Salary
     const orderedEmployeeList =
         sortField && sortOrder
             ? sortOrder === 'ascend'

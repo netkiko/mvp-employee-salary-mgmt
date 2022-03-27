@@ -1,12 +1,11 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Typography, Table, Modal, InputNumber, Space, Button } from 'antd';
-
+import React, { useContext, useState } from 'react';
 import {
     EditOutlined,
     ExclamationCircleOutlined,
     DeleteOutlined,
     SearchOutlined,
 } from '@ant-design/icons';
+import { Typography, Table, Modal, InputNumber, Space, Button } from 'antd';
 
 // Pre-defined Components
 import { deleteEmployeeById } from '../api/deleteEmployeeById';
@@ -93,14 +92,12 @@ const HomePage = () => {
     };
 
     const handleTableChange = async (pagination, filters, sorter, extra) => {
-        console.log('pagination', pagination, 'filters', filters, 'sorter', sorter, 'extra', extra);
         setLoading(true);
         const employeeResp = await getEmployees({
             pagination,
             filters: { minSalary, maxSalary },
             sorter,
         });
-        // console.log(employeeResp);
         if (employeeResp?.status === REQUEST_STATUS.OK && employeeResp?.data) {
             updateEmployeeList(employeeResp);
         }
@@ -114,7 +111,6 @@ const HomePage = () => {
             width: '15%',
             dataIndex: 'emplid',
             align: 'center',
-            // fixed: 'left',
             defaultSortOrder: 'ascend',
             sortDirections: sortDirections,
             sorter: true,
@@ -125,7 +121,6 @@ const HomePage = () => {
             width: '15%',
             dataIndex: 'login',
             align: 'center',
-            // fixed: 'left',
             sortDirections: sortDirections,
             sorter: true,
         },
@@ -153,7 +148,6 @@ const HomePage = () => {
             title: 'Action',
             width: '15%',
             align: 'center',
-            // fixed: 'right',
             render: (row) => (
                 <>
                     <EditOutlined onClick={() => handleEditItem(row)} style={{ width: 30 }} />
@@ -181,6 +175,7 @@ const HomePage = () => {
                     min={0}
                     formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                     parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+                    size="medium"
                     autoFocus
                 />
                 &nbsp;&nbsp;-&nbsp;&nbsp;
@@ -193,6 +188,7 @@ const HomePage = () => {
                     min={0}
                     formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                     parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+                    size="medium"
                 />
                 <Button
                     key="search"

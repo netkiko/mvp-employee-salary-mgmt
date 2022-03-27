@@ -1,7 +1,6 @@
 import React, { useContext, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { useWindowSize, useWindowWidth, useWindowHeight } from '@react-hook/window-size';
-import { Avatar, AutoComplete, Image, Input, Layout, Menu, Switch } from 'antd';
+import { Avatar, Layout, Menu } from 'antd';
 import {
     HomeOutlined,
     UserOutlined,
@@ -11,62 +10,30 @@ import {
 } from '@ant-design/icons';
 import Link from 'next/link';
 
+const { Content, Sider } = Layout;
+
+// Pre-defined Components
 import { WindowDimensionContext } from '../contexts/WindowDimensions';
-
-const { Search } = Input;
-const { Header, Content, Footer, Sider } = Layout;
-
 import UploadModal from './UploadModal';
 
 const PageLayout = (props) => {
     const WindowDimension = useContext(WindowDimensionContext);
-    const {
-        width,
-        height,
-        isMobileView,
-        isMobileXSView,
-        isMobileSMView,
-        isTabletView,
-        isTabletMDView,
-        isTabletLGView,
-        isDesktopView,
-        isDesktopXLView,
-        isDesktopXXLView,
-    } = WindowDimension;
+    const { width, isMobileXSView } = WindowDimension;
+
+    // Local States
     const [siderKey, setSiderKey] = useState('');
     const [isSiderCollapsed, setSiderCollapsed] = useState(false);
-    // const [window, setWindow] = useState({ width: -1, height: -1 });
     const [showUploadModal, setShowUploadModal] = useState(false);
 
     const router = useRouter();
 
-    // const [width, height] = useWindowSize();
-    // useEffect(() => {
-    //     setWindow({ width: width, height: height });
-
-    //     return () => {
-    //         // cleanup
-    //     };
-    // }, [width, height]);
-
     useEffect(() => {
-        console.log('siderKey', siderKey);
-        return () => {
-            // cleanup
-        };
-    }, [siderKey]);
-
-    useEffect(() => {
-        console.log('useEffect fired by useRouter');
         const urlPath = router.pathname;
 
         switch (urlPath) {
             case '/':
                 setSiderKey(0);
                 break;
-            // case '/profile':
-            //     setSiderKey(1);
-            //     break;
             case '/reports':
                 setSiderKey(2);
                 break;
@@ -77,43 +44,32 @@ const PageLayout = (props) => {
                 setSiderKey(4);
                 break;
         }
-        return () => {
-            // cleanup
-        };
     }, [router]);
 
-    const contentStyleWidth =
-        // responsive design
-        width < 480 ? { width: 'calc(100vw - 32px)' } : {};
+    // responsive design
+    const contentStyleWidth = width < 480 ? { width: 'calc(100vw - 32px)' } : {};
 
     const MyAvatar = useCallback(() => {
         return <Avatar size={width < 480 || isSiderCollapsed ? 64 : 100} icon={<UserOutlined />} />;
     }, [width, isSiderCollapsed]);
 
     const handleItemClick = (props) => {
-        const { item, key, keyPath, domEvent } = props;
-        // console.log('item', item, 'key', key, 'keyPath', keyPath, 'domEvent', domEvent);
-        console.log('key', key);
-        if (key === '1') {
-            console.log('key', key);
-            setShowUploadModal(true);
-        }
+        const { key } = props;
+        if (key === '1') setShowUploadModal(true);
     };
 
     return (
-        <Layout>
+        <Layout style={{ overflowX: 'hidden' }}>
             <Sider
                 collapsible
                 breakpoint="lg"
-                // breakpoint="md"
-                collapsedWidth={width > 480 ? 80 : '0'} // enable responsive hidden sider for mobile only
+                collapsedWidth={width > 480 ? 80 : '0'} // enable responsive hidden sider for mobile view
                 onBreakpoint={(broken) => {
                     console.log('broken', broken);
                 }}
                 collapsed={isSiderCollapsed}
                 onCollapse={(collapsed, type) => {
                     setSiderCollapsed(collapsed);
-                    console.log('collapsed', collapsed, 'type', type);
                 }}
             >
                 <div
@@ -127,7 +83,6 @@ const PageLayout = (props) => {
                         alignItems: 'center',
                         color: 'white',
                         marginTop: 40,
-                        // whiteSpace: 'nowrap',
                     }}
                 >
                     <MyAvatar />
@@ -203,23 +158,10 @@ const PageLayout = (props) => {
                 </Menu>
             </Sider>
             <Layout className="site-layout">
-                {/* <Header className={'site-layout-sub-header-background'} style={{ padding: 0 }}>
-                    <div
-                        className="logo"
-                        style={{
-                            height: 64,
-                            color: 'white',
-                            // textAlign: 'center',
-                        }}
-                    >
-                        Main Logo
-                    </div>
-                </Header> */}
-                {/* {isSiderCollapsed && isMobileXSView && ( */}
-                <Content // you may want to change these
+                <Content
                     style={{
                         ...contentStyleWidth,
-                        margin: '24px 16px 0',
+                        margin: isMobileXSView ? '24px 16px 0' : '0 16px',
                         overflow: 'hidden',
                     }}
                 >
@@ -228,7 +170,7 @@ const PageLayout = (props) => {
                         style={{
                             padding: 24,
                             textAlign: 'left',
-                            minHeight: 'calc(100vh - 158px)',
+                            minHeight: '100vh',
                         }}
                     >
                         {showUploadModal && (
@@ -240,13 +182,6 @@ const PageLayout = (props) => {
                         {props.children}
                     </div>
                 </Content>
-                {/* )} */}
-                {/* <Footer style={{ ...contentStyleWidth, textAlign: 'center' }}>
-                    Footer Text
-                    <p>
-                        width: {width}, height: {height}
-                    </p>
-                </Footer> */}
             </Layout>
         </Layout>
     );
