@@ -1,5 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import Link from 'next/link';
+import React, { useContext, useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useWindowSize, useWindowWidth, useWindowHeight } from '@react-hook/window-size';
 import { Avatar, AutoComplete, Image, Input, Layout, Menu, Switch } from 'antd';
@@ -10,29 +9,45 @@ import {
     FileFilled,
     LogoutOutlined,
 } from '@ant-design/icons';
+import Link from 'next/link';
+
+import { WindowDimensionContext } from '../contexts/WindowDimensions';
 
 const { Search } = Input;
-
 const { Header, Content, Footer, Sider } = Layout;
 
 import UploadModal from './UploadModal';
 
 const PageLayout = (props) => {
+    const WindowDimension = useContext(WindowDimensionContext);
+    const {
+        width,
+        height,
+        isMobileView,
+        isMobileXSView,
+        isMobileSMView,
+        isTabletView,
+        isTabletMDView,
+        isTabletLGView,
+        isDesktopView,
+        isDesktopXLView,
+        isDesktopXXLView,
+    } = WindowDimension;
     const [siderKey, setSiderKey] = useState('');
     const [isSiderCollapsed, setSiderCollapsed] = useState(false);
-    const [window, setWindow] = useState({ width: -1, height: -1 });
+    // const [window, setWindow] = useState({ width: -1, height: -1 });
     const [showUploadModal, setShowUploadModal] = useState(false);
 
     const router = useRouter();
 
-    const [width, height] = useWindowSize();
-    useEffect(() => {
-        setWindow({ width: width, height: height });
+    // const [width, height] = useWindowSize();
+    // useEffect(() => {
+    //     setWindow({ width: width, height: height });
 
-        return () => {
-            // cleanup
-        };
-    }, [width, height]);
+    //     return () => {
+    //         // cleanup
+    //     };
+    // }, [width, height]);
 
     useEffect(() => {
         console.log('siderKey', siderKey);
@@ -69,16 +84,11 @@ const PageLayout = (props) => {
 
     const contentStyleWidth =
         // responsive design
-        window.width < 480 ? { width: 'calc(100vw - 32px)' } : {};
+        width < 480 ? { width: 'calc(100vw - 32px)' } : {};
 
     const MyAvatar = useCallback(() => {
-        return (
-            <Avatar
-                size={window.width < 480 || isSiderCollapsed ? 64 : 100}
-                icon={<UserOutlined />}
-            />
-        );
-    }, [window.width, isSiderCollapsed]);
+        return <Avatar size={width < 480 || isSiderCollapsed ? 64 : 100} icon={<UserOutlined />} />;
+    }, [width, isSiderCollapsed]);
 
     const handleItemClick = (props) => {
         const { item, key, keyPath, domEvent } = props;
@@ -95,7 +105,8 @@ const PageLayout = (props) => {
             <Sider
                 collapsible
                 breakpoint="lg"
-                collapsedWidth={window.width > 480 ? '80' : '0'} // enable responsive hidden sider for mobile only
+                // breakpoint="md"
+                collapsedWidth={width > 480 ? 80 : '0'} // enable responsive hidden sider for mobile only
                 onBreakpoint={(broken) => {
                     console.log('broken', broken);
                 }}
@@ -120,8 +131,15 @@ const PageLayout = (props) => {
                     }}
                 >
                     <MyAvatar />
-                    <span style={{ marginTop: 20, marginBottom: 50, textAlign: 'center' }}>
-                        Long User Name
+                    <span
+                        style={{
+                            marginTop: 20,
+                            padding: '0 10px',
+                            marginBottom: 50,
+                            textAlign: 'center',
+                        }}
+                    >
+                        Junnel Teves
                     </span>
                 </div>
                 <Menu
@@ -191,17 +209,18 @@ const PageLayout = (props) => {
                         style={{
                             height: 64,
                             color: 'white',
-                            textAlign: 'center',
+                            // textAlign: 'center',
                         }}
                     >
                         Main Logo
                     </div>
                 </Header> */}
+                {/* {isSiderCollapsed && isMobileXSView && ( */}
                 <Content // you may want to change these
                     style={{
                         ...contentStyleWidth,
                         margin: '24px 16px 0',
-                        overflow: 'initial',
+                        overflow: 'hidden',
                     }}
                 >
                     <div
@@ -221,10 +240,11 @@ const PageLayout = (props) => {
                         {props.children}
                     </div>
                 </Content>
+                {/* )} */}
                 {/* <Footer style={{ ...contentStyleWidth, textAlign: 'center' }}>
                     Footer Text
                     <p>
-                        width: {window.width}, height: {window.height}
+                        width: {width}, height: {height}
                     </p>
                 </Footer> */}
             </Layout>

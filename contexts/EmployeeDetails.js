@@ -24,8 +24,6 @@ export default function useEmployeeDetails() {
     const [loading, setLoading] = useState(true);
     const [minSalary, setMinSalary] = useState(0);
     const [maxSalary, setMaxSalary] = useState(0);
-    const [minSalaryError, setMinSalaryError] = useState('');
-    const [maxSalaryError, setMaxSalaryError] = useState('');
 
     const updateEmployeeList = ({ localData, data, pagination, sorter }) => {
         if (localData) {
@@ -53,7 +51,7 @@ export default function useEmployeeDetails() {
                     filters: { minSalary, maxSalary },
                     sorter,
                 });
-                console.log('employeeResp', employeeResp);
+                // console.log('employeeResp', employeeResp);
                 if (employeeResp?.status === REQUEST_STATUS.OK && employeeResp?.data) {
                     updateEmployeeList(employeeResp);
                 }
@@ -79,10 +77,6 @@ export default function useEmployeeDetails() {
         setMinSalary,
         maxSalary,
         setMaxSalary,
-        minSalaryError,
-        setMinSalaryError,
-        maxSalaryError,
-        setMaxSalaryError,
     };
 }
 

@@ -25,7 +25,6 @@ const HomePage = () => {
         employeeList,
         updateEmployeeList,
         pagination,
-        setPagination,
         loading,
         sorter,
         setLoading,
@@ -33,10 +32,6 @@ const HomePage = () => {
         setMinSalary,
         maxSalary,
         setMaxSalary,
-        minSalaryError,
-        setMinSalaryError,
-        maxSalaryError,
-        setMaxSalaryError,
     } = EmployeeDetails;
 
     const sortDirections = ['ascend', 'descend', 'ascend'];
@@ -44,7 +39,6 @@ const HomePage = () => {
     // Local States
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedEmpData, setSelectedEmpData] = useState('');
-    // const [employeedata, setEmployeedata] = useState([]);
 
     const formatCurrencyUSD = new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -76,7 +70,6 @@ const HomePage = () => {
                 filters: { minSalary, maxSalary },
                 sorter,
             });
-            // console.log(employeeResp);
             if (employeeResp?.status === REQUEST_STATUS.OK && employeeResp?.data) {
                 updateEmployeeList(employeeResp);
             }
@@ -84,15 +77,10 @@ const HomePage = () => {
         }
     };
 
-    // useEffect(() => {
-    //     console.log(minSalary, maxSalary);
-    // }, [minSalary, maxSalary]);
-
     const handleDeleteItem = async (data) => {
         confirm({
             title: `Do you really want to delete Employee Id: ${data.emplid} and its details?`,
             icon: <ExclamationCircleOutlined />,
-            // content: '',
             async onOk() {
                 const deleteResp = await deleteEmployeeById(data);
                 if (deleteResp?.status === REQUEST_STATUS.OK) {
@@ -126,6 +114,7 @@ const HomePage = () => {
             width: '15%',
             dataIndex: 'emplid',
             align: 'center',
+            // fixed: 'left',
             defaultSortOrder: 'ascend',
             sortDirections: sortDirections,
             sorter: true,
@@ -136,6 +125,7 @@ const HomePage = () => {
             width: '15%',
             dataIndex: 'login',
             align: 'center',
+            // fixed: 'left',
             sortDirections: sortDirections,
             sorter: true,
         },
@@ -163,7 +153,7 @@ const HomePage = () => {
             title: 'Action',
             width: '15%',
             align: 'center',
-            fixed: 'right',
+            // fixed: 'right',
             render: (row) => (
                 <>
                     <EditOutlined onClick={() => handleEditItem(row)} style={{ width: 30 }} />
@@ -180,6 +170,7 @@ const HomePage = () => {
                 direction="horizontal"
                 style={{ width: '100%', marginTop: 10, display: 'flex', alignItems: 'center' }}
                 size="small"
+                wrap
             >
                 <Text>Minimum Salary:</Text>
                 <InputNumber
@@ -219,6 +210,7 @@ const HomePage = () => {
                 pagination={pagination}
                 onChange={handleTableChange}
                 loading={loading}
+                scroll={{ x: 768 }}
                 style={{ marginTop: 10 }}
             />
             {showEditModal && (
