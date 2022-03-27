@@ -208,7 +208,7 @@ const PageLayout = (props) => {
                         className="site-layout-background"
                         style={{
                             padding: 24,
-                            textAlign: 'center',
+                            textAlign: 'left',
                             minHeight: 'calc(100vh - 158px)',
                         }}
                     >

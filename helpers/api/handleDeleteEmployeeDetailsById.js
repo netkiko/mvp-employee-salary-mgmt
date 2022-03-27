@@ -15,8 +15,7 @@ const deleteEmployeeDetailsById = async (req, res) => {
     }
 
     // Employees data taken from local storage
-    // let orderedEmpListById = JSON.parse(headers.data)?.sort((a, b) => a.id - b.id) || [];
-    let employeeList = JSON.parse(headers.data)?.sort((a, b) => a.id - b.id) || [];
+    let employeeList = JSON.parse(headers.data);
 
     // Search Employee Id (if exist)
     const searchedEmpIdData = employeeList.filter((emp) => emp.emplid === emplid);
@@ -29,7 +28,7 @@ const deleteEmployeeDetailsById = async (req, res) => {
 
     return res.status(200).json({
         status: REQUEST_STATUS.OK,
-        data: employeeList.filter((emp) => emp.emplid !== emplid),
+        localData: employeeList.filter((emp) => emp.emplid !== emplid),
         message: `Employee Id: ${emplid} has been successfully deleted.`,
     });
 };

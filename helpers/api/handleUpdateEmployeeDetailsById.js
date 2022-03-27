@@ -68,7 +68,7 @@ const updateEmployeeDetailsById = async (req, res) => {
 
     return res.status(200).json({
         status: REQUEST_STATUS.OK,
-        data: employeeList,
+        localData: employeeList,
         message: `Employee Id: ${emplid} has been successfully updated.`,
     });
 };

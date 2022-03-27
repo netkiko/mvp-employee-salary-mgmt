@@ -58,7 +58,7 @@ const EditEmployeeModal = ({ selectedEmpData, showEditModal, setShowEditModal })
             });
             // console.log('updateResp', updateResp);
             if (updateResp?.status === REQUEST_STATUS.OK) {
-                updateEmployeeList(updateResp.data);
+                updateEmployeeList(updateResp);
                 updateResp?.message && displaySuccessModal(updateResp?.message);
                 // console.log(updateResp);
                 handleCancel();

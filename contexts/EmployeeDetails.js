@@ -9,6 +9,7 @@ export const EmployeeDetailsContext = createContext();
 
 export default function useEmployeeDetails() {
     // Context States
+    const [localDataChanged, setLocalDataChanged] = useState(true);
     const [employeeList, setEmployeeList] = useState([]);
     const [pagination, setPagination] = useState({
         current: 1,
@@ -21,28 +22,46 @@ export default function useEmployeeDetails() {
         order: 'ascend',
     });
     const [loading, setLoading] = useState(true);
+    const [minSalary, setMinSalary] = useState(0);
+    const [maxSalary, setMaxSalary] = useState(0);
+    const [minSalaryError, setMinSalaryError] = useState('');
+    const [maxSalaryError, setMaxSalaryError] = useState('');
 
-    const updateEmployeeList = ({ data, pagination, sorter }) => {
-        // window.localStorage.setItem(EMPLOYEE_LIST, JSON.stringify(updatedEmpList));
-        setEmployeeList(data);
-        setPagination({
-            current: parseInt(pagination.current),
-            pageSize: parseInt(pagination.pageSize),
-            total: pagination.total,
-        });
-        setSorter(sorter);
+    const updateEmployeeList = ({ localData, data, pagination, sorter }) => {
+        if (localData) {
+            window.localStorage.setItem(EMPLOYEE_LIST, JSON.stringify(localData));
+            setLocalDataChanged(true);
+        } else {
+            setEmployeeList(data);
+            setPagination({
+                current: parseInt(pagination.current),
+                pageSize: parseInt(pagination.pageSize),
+                total: pagination.total,
+                defaultPageSize: 5,
+                showSizeChanger: true,
+                pageSizeOptions: ['5', '10', '15'],
+            });
+            setSorter(sorter);
+        }
     };
 
     useEffect(() => {
-        (async () => {
-            const employeeResp = await getEmployees({ pagination, sorter });
-            console.log('employeeResp', employeeResp);
-            if (employeeResp?.status === REQUEST_STATUS.OK && employeeResp?.data) {
-                updateEmployeeList(employeeResp);
-            }
-            setLoading(false);
-        })();
-    }, []);
+        if (localDataChanged) {
+            (async () => {
+                const employeeResp = await getEmployees({
+                    pagination,
+                    filters: { minSalary, maxSalary },
+                    sorter,
+                });
+                console.log('employeeResp', employeeResp);
+                if (employeeResp?.status === REQUEST_STATUS.OK && employeeResp?.data) {
+                    updateEmployeeList(employeeResp);
+                }
+                setLoading(false);
+            })();
+            setLocalDataChanged(false);
+        }
+    }, [localDataChanged]);
 
     return {
         EMPLOYEE_LIST,
@@ -52,8 +71,18 @@ export default function useEmployeeDetails() {
         updateEmployeeList,
         pagination,
         setPagination,
+        sorter,
+        setSorter,
         loading,
         setLoading,
+        minSalary,
+        setMinSalary,
+        maxSalary,
+        setMaxSalary,
+        minSalaryError,
+        setMinSalaryError,
+        maxSalaryError,
+        setMaxSalaryError,
     };
 }
 

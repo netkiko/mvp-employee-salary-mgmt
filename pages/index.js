@@ -1,7 +1,12 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Typography, Table, Modal, Input, Space } from 'antd';
+import { Typography, Table, Modal, InputNumber, Space, Button } from 'antd';
 
-import { EditOutlined, ExclamationCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+import {
+    EditOutlined,
+    ExclamationCircleOutlined,
+    DeleteOutlined,
+    SearchOutlined,
+} from '@ant-design/icons';
 
 // Pre-defined Components
 import { deleteEmployeeById } from '../api/deleteEmployeeById';
@@ -16,19 +21,30 @@ const { confirm } = Modal;
 
 const HomePage = () => {
     const EmployeeDetails = useContext(EmployeeDetailsContext);
-    const { employeeList, updateEmployeeList, pagination, setPagination, loading, setLoading } =
-        EmployeeDetails;
+    const {
+        employeeList,
+        updateEmployeeList,
+        pagination,
+        setPagination,
+        loading,
+        sorter,
+        setLoading,
+        minSalary,
+        setMinSalary,
+        maxSalary,
+        setMaxSalary,
+        minSalaryError,
+        setMinSalaryError,
+        maxSalaryError,
+        setMaxSalaryError,
+    } = EmployeeDetails;
 
     const sortDirections = ['ascend', 'descend', 'ascend'];
 
     // Local States
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedEmpData, setSelectedEmpData] = useState('');
-    const [employeedata, setEmployeedata] = useState([]);
-    const [minSalary, setMinSalary] = useState();
-    const [maxSalary, setMaxSalary] = useState();
-    const [minSalaryError, setMinSalaryError] = useState('');
-    const [maxSalaryError, setMaxSalaryError] = useState('');
+    // const [employeedata, setEmployeedata] = useState([]);
 
     const formatCurrencyUSD = new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -40,11 +56,37 @@ const HomePage = () => {
         setShowEditModal(true);
     };
 
-    const displaySuccessModal = (message) => {
-        Modal.success({
-            content: message,
-        });
+    const displaySuccessModal = (successMessage) => Modal.success({ title: successMessage });
+
+    const displaySearchErrorModal = (searchError) => Modal.error({ title: searchError });
+
+    const handleSalaryRangeSearch = async () => {
+        let searchError = '';
+        minSalary > maxSalary &&
+            (searchError = 'Minimum Salary cannot be higher than Maximum Salary.');
+        minSalary === 0 &&
+            maxSalary === 0 &&
+            (searchError = 'Minimum and Maximum Salaries cannot be both zero.');
+        if (searchError.length > 0) {
+            displaySearchErrorModal(searchError);
+        } else {
+            setLoading(true);
+            const employeeResp = await getEmployees({
+                pagination,
+                filters: { minSalary, maxSalary },
+                sorter,
+            });
+            // console.log(employeeResp);
+            if (employeeResp?.status === REQUEST_STATUS.OK && employeeResp?.data) {
+                updateEmployeeList(employeeResp);
+            }
+            setLoading(false);
+        }
     };
+
+    // useEffect(() => {
+    //     console.log(minSalary, maxSalary);
+    // }, [minSalary, maxSalary]);
 
     const handleDeleteItem = async (data) => {
         confirm({
@@ -54,7 +96,7 @@ const HomePage = () => {
             async onOk() {
                 const deleteResp = await deleteEmployeeById(data);
                 if (deleteResp?.status === REQUEST_STATUS.OK) {
-                    updateEmployeeList(deleteResp.data);
+                    updateEmployeeList(deleteResp);
                     deleteResp?.message && displaySuccessModal(deleteResp.message);
                 }
             },
@@ -62,11 +104,15 @@ const HomePage = () => {
         });
     };
 
-    const onChange = async (pagination, filters, sorter, extra) => {
+    const handleTableChange = async (pagination, filters, sorter, extra) => {
         console.log('pagination', pagination, 'filters', filters, 'sorter', sorter, 'extra', extra);
         setLoading(true);
-        const employeeResp = await getEmployees({ pagination, filters, sorter });
-        console.log(employeeResp);
+        const employeeResp = await getEmployees({
+            pagination,
+            filters: { minSalary, maxSalary },
+            sorter,
+        });
+        // console.log(employeeResp);
         if (employeeResp?.status === REQUEST_STATUS.OK && employeeResp?.data) {
             updateEmployeeList(employeeResp);
         }
@@ -83,7 +129,6 @@ const HomePage = () => {
             defaultSortOrder: 'ascend',
             sortDirections: sortDirections,
             sorter: true,
-            // sorter: (a, b) => a.emplid.localeCompare(b.emplid),
         },
         {
             key: 'login',
@@ -93,7 +138,6 @@ const HomePage = () => {
             align: 'center',
             sortDirections: sortDirections,
             sorter: true,
-            // sorter: (a, b) => a.login.localeCompare(b.login),
         },
         {
             key: 'name',
@@ -103,7 +147,6 @@ const HomePage = () => {
             align: 'center',
             sortDirections: sortDirections,
             sorter: true,
-            // sorter: (a, b) => a.name.localeCompare(b.name),
         },
         {
             key: 'salary',
@@ -114,7 +157,6 @@ const HomePage = () => {
             render: (salary) => formatCurrencyUSD.format(salary),
             sortDirections: sortDirections,
             sorter: true,
-            // sorter: (a, b) => a.salary.localeCompare(b.salary),
         },
         {
             key: 'action',
@@ -131,57 +173,51 @@ const HomePage = () => {
         },
     ];
 
-    // useEffect(() => {
-    //     const empData = [...employeeList];
-    //     for (let i = 0; i < employeeList.length; i++) {
-    //         empData[i].key = (i + 1).toString();
-    //     }
-    //     setEmployeedata(empData);
-    // }, [employeeList]);
-
     return (
         <PageLayout>
-            <Title>Employee List</Title>
-            <Space direction="horizontal" style={{ width: '100%', marginTop: 10 }} size="small">
-                <div>
-                    <Text>Name:</Text>
-                    <Input
-                        type="number"
-                        id="minSalary"
-                        name="minSalary"
-                        value={minSalary}
-                        allowClear
-                        onChange={(e) => setMinSalary(e.target.value)}
-                        // onBlur={(e) => {
-                        //     e.target.value.length === 0 && setMinSalaryError('');
-                        // }}
-                        status={minSalaryError ? 'error' : ''}
-                    />
-                    {minSalaryError && <Text type="danger">{minSalaryError}</Text>}
-                </div>
-                <div>
-                    <Text>Name:</Text>
-                    <Input
-                        type="number"
-                        id="maxSalary"
-                        name="maxSalary"
-                        value={maxSalary}
-                        allowClear
-                        onChange={(e) => setMaxSalary(e.target.value)}
-                        onBlur={(e) => {
-                            e.target.value.length === 0 && setMaxSalaryError('');
-                        }}
-                        status={maxSalaryError ? 'error' : ''}
-                    />
-                    {maxSalaryError && <Text type="danger">{maxSalaryError}</Text>}
-                </div>
+            <Title level={3}>Employee List</Title>
+            <Space
+                direction="horizontal"
+                style={{ width: '100%', marginTop: 10, display: 'flex', alignItems: 'center' }}
+                size="small"
+            >
+                <Text>Minimum Salary:</Text>
+                <InputNumber
+                    id="minSalary"
+                    name="minSalary"
+                    value={minSalary}
+                    onChange={(value) => setMinSalary(value)}
+                    min={0}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+                    autoFocus
+                />
+                &nbsp;&nbsp;-&nbsp;&nbsp;
+                <Text>Maximum Salary:</Text>
+                <InputNumber
+                    id="maxSalary"
+                    name="maxSalary"
+                    value={maxSalary}
+                    onChange={(value) => setMaxSalary(value)}
+                    min={0}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+                />
+                <Button
+                    key="search"
+                    type="primary"
+                    loading={loading}
+                    onClick={handleSalaryRangeSearch}
+                >
+                    <SearchOutlined />
+                </Button>
             </Space>
             <Table
                 columns={columns}
                 dataSource={employeeList}
                 rowKey={(record) => record.emplid}
                 pagination={pagination}
-                onChange={onChange}
+                onChange={handleTableChange}
                 loading={loading}
                 style={{ marginTop: 10 }}
             />
