@@ -51,7 +51,6 @@ const UploadModal = ({ showUploadModal, setShowUploadModal }) => {
         setProgressInfo([..._progressInfo]);
 
         // Validate each field in each row
-        let arrValidEmployees = [];
         for (let i = 0; i < newArrEmployees.length; i++) {
             if (
                 newArrEmployees[i]?.emplid?.length === 0 ||
@@ -71,15 +70,15 @@ const UploadModal = ({ showUploadModal, setShowUploadModal }) => {
 
         // Validate for uniqueness of Login
         if (existingEmployeeList.length > 0) {
-            for (let i = 0; i < arrValidEmployees.length; i++) {
+            for (let i = 0; i < newArrEmployees.length; i++) {
                 existingEmployeeList = existingEmployeeList.filter(
-                    (d) => d.emplid !== arrValidEmployees[i].emplid,
+                    (d) => d.emplid !== newArrEmployees[i].emplid,
                 );
                 const dupLoginIndex = existingEmployeeList.findIndex(
-                    (d) => d.login === arrValidEmployees[i].login,
+                    (d) => d.login === newArrEmployees[i].login,
                 );
                 if (dupLoginIndex < 0) {
-                    existingEmployeeList.push(arrValidEmployees[i]);
+                    existingEmployeeList.push(newArrEmployees[i]);
                 } else {
                     _progressInfo[idx].percentage = 60;
                     _progressInfo[idx].errorMessage =
@@ -89,7 +88,7 @@ const UploadModal = ({ showUploadModal, setShowUploadModal }) => {
                 }
             }
         } else {
-            existingEmployeeList = arrValidEmployees;
+            existingEmployeeList = newArrEmployees;
         }
         _progressInfo[idx].percentage = 90;
         setProgressInfo([..._progressInfo]);

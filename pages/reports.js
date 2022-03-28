@@ -1,11 +1,14 @@
 import React from 'react';
+import { Typography } from 'antd';
+
+const { Title } = Typography;
 
 import PageLayout from '../components/PageLayout';
 
 const reports = (props) => {
     return (
         <PageLayout>
-            <div>Reports</div>
+            <Title level={3}>Reports</Title>
         </PageLayout>
     );
 };

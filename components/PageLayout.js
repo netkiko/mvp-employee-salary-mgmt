@@ -65,7 +65,7 @@ const PageLayout = (props) => {
                 breakpoint="lg"
                 collapsedWidth={width > 480 ? 80 : '0'} // enable responsive hidden sider for mobile view
                 onBreakpoint={(broken) => {
-                    console.log('broken', broken);
+                    // console.log('broken', broken);
                 }}
                 collapsed={isSiderCollapsed}
                 onCollapse={(collapsed, type) => {

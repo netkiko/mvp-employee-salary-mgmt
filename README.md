@@ -1,4 +1,4 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This is an MVP Employee Salary Management webapp project bootstrapped with [Next.js](https://nextjs.org/).
 
 ## Getting Started
 
@@ -10,25 +10,19 @@ npm run dev
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+## Steps on using the Webapp
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+Initially, MVP Employee Salary Management webapp will load with empty Employee List, it has sidebar with the name of the user avatar and long name. Side bar has functional links, but only Employee List and Upload Employee List have productive functionalities.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+To start using the Webapp, follow the steps below:
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+1. Upload Employee list with CSV file format via Upload Employee List link found from the side bar menu.
+2. Once clicked, it will launch Upload Employee List modal. There you have the options to upload single or multiple CSV files. It has active validation system in which error message/s (result of any validation failures) will be displayed altogether with CSV file name/s and Progress bars and error message (if there's any validation failures). The uploaded rows will automatically fill in the Employee List table.
+3. For editing any of Employee Details, you only need to click the Edit (pencil) icon and it will show up the Edit Employee Details modal. User can update the Name, Login and Salary but not the Employee Id. Once updated, just click Save button and it will give you successful update notification. The updated details will immediately reflect in the Employee List table.
+4. For deleting any Employee Details, it just require you to click on Delete (garbage bin) icon and it will display a confirmation dialog box. Once you press OK, it will remove the entire row in the Employee List table instantly.
+5. Table has the ability to sort each column, just click on the column header of desired field (e.g. Id, Login, Name and Salary) and sort it in either ascending or descending order.
+6. It also has the ability to filter Employee List via Salary Range.
+7. Employee List table has also a functional page navigation. You can select number of rows to be displayed on each page.
+8. Pagination, column sorting and salary range filtering are all working together in Employee List page.

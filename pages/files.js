@@ -1,11 +1,14 @@
 import React from 'react';
+import { Typography } from 'antd';
+
+const { Title } = Typography;
 
 import PageLayout from '../components/PageLayout';
 
 const files = (props) => {
     return (
         <PageLayout>
-            <div>File Maintenance</div>
+            <Title level={3}>File Maintenance</Title>
         </PageLayout>
     );
 };
