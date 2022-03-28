@@ -92,7 +92,7 @@ const EditEmployeeModal = ({ selectedEmpData, showEditModal, setShowEditModal })
                     </Button>,
                 ]}
             >
-                <Space direction="vertical" style={{ width: '100%' }} size="small">
+                <Space direction="vertical" size="small" style={{ width: '100%' }}>
                     {(successMessage.length > 0 || errorMessage.length > 0) && (
                         <Alert
                             message={successMessage || errorMessage}

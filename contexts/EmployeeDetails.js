@@ -26,6 +26,7 @@ export default function useEmployeeDetails() {
     const [maxSalary, setMaxSalary] = useState(0);
 
     const updateEmployeeList = ({ localData, data, pagination, sorter }) => {
+        console.log('localData', localData);
         if (localData) {
             window.localStorage.setItem(EMPLOYEE_LIST, JSON.stringify(localData));
             setLocalDataChanged(true);

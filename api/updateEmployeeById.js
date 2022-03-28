@@ -1,7 +1,6 @@
 import { EMPLOYEE_LIST } from '../configs/constants';
 
 export const updateEmployeeById = async ({ emplid, login, name, salary }) => {
-    console.log(emplid, login, name, salary);
     try {
         const reqBody = {
             login,

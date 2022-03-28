@@ -1,6 +1,6 @@
 import { REQUEST_STATUS } from '../../configs/constants';
 
-const updateEmployeeDetailsById = async (req, res) => {
+const handleUpdateEmployeeDetailsById = async (req, res) => {
     const {
         query: { id: emplid },
         headers,
@@ -34,8 +34,7 @@ const updateEmployeeDetailsById = async (req, res) => {
         });
 
     // Employees data taken from local storage
-    // let orderedEmpListById = JSON.parse(headers.data)?.sort((a, b) => a.id - b.id) || [];
-    let employeeList = JSON.parse(headers.data)?.sort((a, b) => a.id - b.id) || [];
+    let employeeList = JSON.parse(headers.data) || [];
 
     // Search Employee Id (if exist)
     const searchedEmpIdData = employeeList.filter((emp) => emp.emplid === emplid);
@@ -73,4 +72,4 @@ const updateEmployeeDetailsById = async (req, res) => {
     });
 };
 
-export default updateEmployeeDetailsById;
+export default handleUpdateEmployeeDetailsById;

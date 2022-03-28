@@ -1,6 +1,6 @@
 import { REQUEST_STATUS } from '../../configs/constants';
 
-const deleteEmployeeDetailsById = async (req, res) => {
+const handleDeleteEmployeeDetailsById = async (req, res) => {
     const {
         query: { id: emplid },
         headers,
@@ -15,7 +15,7 @@ const deleteEmployeeDetailsById = async (req, res) => {
     }
 
     // Employees data taken from local storage
-    let employeeList = JSON.parse(headers.data);
+    let employeeList = JSON.parse(headers.data) || [];
 
     // Search Employee Id (if exist)
     const searchedEmpIdData = employeeList.filter((emp) => emp.emplid === emplid);
@@ -33,4 +33,4 @@ const deleteEmployeeDetailsById = async (req, res) => {
     });
 };
 
-export default deleteEmployeeDetailsById;
+export default handleDeleteEmployeeDetailsById;

@@ -1,33 +1,31 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Alert, Modal, Button, Input, Space } from 'antd';
+import React, { Fragment, useContext, useState } from 'react';
+import { Alert, Modal, Button, Input, Space, Progress, Typography } from 'antd';
+
+const { Title, Text } = Typography;
 
 import { EmployeeDetailsContext } from '../contexts/EmployeeDetails';
 
 const UploadModal = ({ showUploadModal, setShowUploadModal }) => {
     const EmployeeDetails = useContext(EmployeeDetailsContext);
     const {
+        EMPLOYEE_LIST,
         EMPLOYEE_LIST_HEADERS: columnHeaders,
-        employeeList,
         updateEmployeeList,
     } = EmployeeDetails;
 
     // Local states
     const [loading, setLoading] = useState(false);
-    const [isNewList, setIsNewList] = useState(true);
-    const [isInvalidFileFormat, setIsInvalidFileFormat] = useState(false);
-    const [csvFiles, setCsvFiles] = useState();
-    const [csvArray, setCsvArray] = useState([]);
-    const [csvFileNames, setCsvFileNames] = useState('');
+    const [invalidFileMessage, setInvalidFileMessage] = useState('');
+    const [csvFiles, setCsvFiles] = useState([]);
+    const [progressInfo, setProgressInfo] = useState([]);
 
-    const showModal = () => {
-        // setVisible(true);
-        setShowUploadModal(true);
-    };
-
-    const processCsvFile = (data, delimeter = ',') => {
-        let arrExistingEmployeeList = employeeList;
+    const processCsvFile = (data, idx, delimeter = ',') => {
+        const _progressInfo = [...progressInfo];
+        let existingEmployeeList = JSON.parse(window.localStorage.getItem(EMPLOYEE_LIST)) || [];
         const arrHeaders = columnHeaders.split(delimeter);
         const arrRows = data.slice(0).split('\r\n');
+        _progressInfo[idx].percentage = 10;
+        setProgressInfo([..._progressInfo]);
 
         let newArrEmployees = arrRows.map((row) => {
             const values = row.split(delimeter);
@@ -38,66 +36,112 @@ const UploadModal = ({ showUploadModal, setShowUploadModal }) => {
 
             return eachObject;
         });
+        _progressInfo[idx].percentage = 20;
+        setProgressInfo([..._progressInfo]);
 
+        // Remove empty rows
+        newArrEmployees = newArrEmployees.filter(
+            (e) =>
+                e.emplid.length !== 0 &&
+                e.login.length !== 0 &&
+                e.name.length !== 0 &&
+                e.salary.length !== 0,
+        );
+        progressInfo[idx].percentage = 30;
+        setProgressInfo([..._progressInfo]);
+
+        // Validate each field in each row
         let arrValidEmployees = [];
         for (let i = 0; i < newArrEmployees.length; i++) {
             if (
-                newArrEmployees[i]?.emplid?.length > 0 &&
-                newArrEmployees[i]?.emplid?.substr(0, 1) !== '#' &&
-                newArrEmployees[i]?.login?.length > 0 &&
-                newArrEmployees[i]?.name?.length > 0 &&
-                newArrEmployees[i]?.salary?.length > 0 &&
-                parseFloat(newArrEmployees[i]?.salary) >= 0.0
+                newArrEmployees[i]?.emplid?.length === 0 ||
+                newArrEmployees[i]?.login?.length === 0 ||
+                newArrEmployees[i]?.name?.length === 0 ||
+                newArrEmployees[i]?.salary?.length === 0 ||
+                parseFloat(newArrEmployees[i]?.salary) <= 0
             ) {
-                arrValidEmployees.push(newArrEmployees[i]);
+                _progressInfo[idx].percentage = 40;
+                _progressInfo[idx].errorMessage = 'One or more rows failed the validation.';
+                setProgressInfo([..._progressInfo]);
+                return;
             }
         }
+        _progressInfo[idx].percentage = 50;
+        setProgressInfo([..._progressInfo]);
 
-        if (arrExistingEmployeeList.length > 0) {
+        // Validate for uniqueness of Login
+        if (existingEmployeeList.length > 0) {
             for (let i = 0; i < arrValidEmployees.length; i++) {
-                arrExistingEmployeeList = arrExistingEmployeeList.filter(
+                existingEmployeeList = existingEmployeeList.filter(
                     (d) => d.emplid !== arrValidEmployees[i].emplid,
                 );
-                const dupLoginIndex = arrExistingEmployeeList.findIndex(
+                const dupLoginIndex = existingEmployeeList.findIndex(
                     (d) => d.login === arrValidEmployees[i].login,
                 );
                 if (dupLoginIndex < 0) {
-                    arrExistingEmployeeList.push(arrValidEmployees[i]);
+                    existingEmployeeList.push(arrValidEmployees[i]);
+                } else {
+                    _progressInfo[idx].percentage = 60;
+                    _progressInfo[idx].errorMessage =
+                        'One or more rows has/have duplicate Login/s.';
+                    setProgressInfo([..._progressInfo]);
+                    return;
                 }
             }
         } else {
-            arrExistingEmployeeList = arrValidEmployees;
+            existingEmployeeList = arrValidEmployees;
         }
+        _progressInfo[idx].percentage = 90;
+        setProgressInfo([..._progressInfo]);
 
-        updateEmployeeList(arrExistingEmployeeList);
+        // Update to global employee list (reflects in table)
+        updateEmployeeList({ localData: existingEmployeeList });
+        _progressInfo[idx].percentage = 100;
+        setProgressInfo([..._progressInfo]);
     };
 
     const handleCsvUpload = () => {
         setLoading(true);
-        const file = csvFiles;
-        const reader = new FileReader();
+        for (let i = 0; i < csvFiles.length; i++) {
+            const file = csvFiles[i];
+            const reader = new FileReader();
 
-        reader.onload = (e) => {
-            const text = e.target.result;
-            processCsvFile(text);
-        };
+            reader.onload = (e) => {
+                const text = e.target.result;
+                processCsvFile(text, i);
+            };
 
-        reader.readAsText(file);
+            reader.readAsText(file);
+        }
         setLoading(false);
     };
 
     const handleCancel = () => setShowUploadModal(false);
 
     const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file && !file?.name?.includes('.csv')) {
-            setIsInvalidFileFormat(true);
-            setCsvFiles(file);
-            return;
+        let _progressInfo = [];
+        for (let i = 0; i < e.target.files.length; i++) {
+            const file = e.target.files[i];
+            let errorMessage = '';
+            if (file && !file?.name?.includes('.csv')) {
+                setIsInvalidFile(true);
+                errorMessage = 'Allow only CSV file.';
+            }
+            if (file && file?.size > 2000000) {
+                setIsInvalidFile(true);
+                errorMessage = 'File size must not exceed 2MB.';
+            }
+            _progressInfo.push({
+                percentage: 0,
+                fileName: e.target.files[i].name,
+                fileSize: e.target.files[i].size,
+                errorMessage,
+            });
         }
 
-        setIsInvalidFileFormat(false);
-        setCsvFiles(file);
+        setProgressInfo(_progressInfo);
+        setCsvFiles(e.target.files);
+        setInvalidFileMessage('');
         return;
     };
 
@@ -112,32 +156,69 @@ const UploadModal = ({ showUploadModal, setShowUploadModal }) => {
                     <Button key="back" onClick={handleCancel}>
                         Cancel
                     </Button>,
-                    <Button key="submit" type="primary" loading={loading} onClick={handleCsvUpload}>
+                    <Button
+                        key="submit"
+                        type="primary"
+                        loading={loading}
+                        disabled={!!invalidFileMessage}
+                        onClick={handleCsvUpload}
+                    >
                         Upload CSV
                     </Button>,
                 ]}
             >
-                {/* <Space direction="vertical"> */}
-                <Input
-                    type="file"
-                    id="files"
-                    name="files"
-                    // value={csvFiles}
-                    accept=".csv"
-                    multiple
-                    onChange={handleFileChange}
-                />
-                {isInvalidFileFormat && (
-                    <Alert
-                        message="Please upload a CSV File."
-                        description=""
-                        type="error"
-                        closable
-                        // onClose={onClose}
-                        style={{ marginTop: 15 }}
+                <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                    <Input
+                        type="file"
+                        id="files"
+                        name="files"
+                        // value={csvFiles}
+                        accept=".csv"
+                        multiple
+                        onChange={handleFileChange}
                     />
-                )}
-                {/* </Space> */}
+                    {invalidFileMessage.length > 0 && (
+                        <Alert
+                            message={invalidFileMessage}
+                            description=""
+                            type="error"
+                            closable
+                            showIcon
+                            style={{ marginTop: 15 }}
+                        />
+                    )}
+                    <div style={{ marginTop: 20 }}>
+                        {progressInfo.length > 0 &&
+                            progressInfo.map((f) => {
+                                return (
+                                    <Fragment key={f.fileName}>
+                                        <Text>{`${f.fileName} (${f.fileSize}b)`}</Text>
+                                        <Progress
+                                            key={f.name}
+                                            percent={f.percentage}
+                                            status={
+                                                f.percentage === 100
+                                                    ? 'success'
+                                                    : f.errorMessage
+                                                    ? 'exception'
+                                                    : 'active'
+                                            }
+                                            style={{ marginTop: 5 }}
+                                        />
+                                        {f.errorMessage && (
+                                            <Alert
+                                                message={f.errorMessage}
+                                                description=""
+                                                type="error"
+                                                showIcon
+                                                style={{ marginTop: 10 }}
+                                            />
+                                        )}
+                                    </Fragment>
+                                );
+                            })}
+                    </div>
+                </Space>
             </Modal>
         </>
     );
