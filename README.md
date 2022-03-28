@@ -26,3 +26,10 @@ To start using the Webapp, follow the steps below:
 6. It also has the ability to filter Employee List via Salary Range.
 7. Employee List table has also a functional page navigation. You can select number of rows to be displayed on each page.
 8. Pagination, column sorting and salary range filtering are all working together in Employee List page.
+
+## Key Assumptions and Decisions Made
+
+1. Used browser's local storage to store the employee data. Server side doesn't have access to Browser so LocalStorage item is supplied in Request Header and send altogether with Query and Body Parameters;
+2. Built a custom APIs for Reading, Updating and Deleting Employee Record but wasn't able to do so for Employee List Upload as it is requiring real DB. The upload progress of each CSV file upload are all FE work-around.
+3. Used ANT Design and Less for the first time for this Frontend Assignment. I'm happy to learned and applied it on the spot.
+4. Unit Tests were not covered due to time constraints, whereas I was trying balance my time between my current project deliverables and this, my frontedn assignment.
